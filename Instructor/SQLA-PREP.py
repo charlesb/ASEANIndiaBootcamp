@@ -4,11 +4,23 @@
 
 # COMMAND ----------
 
+# MAGIC %pip install google-api-python-client google-auth-oauthlib tqdm
+
+# COMMAND ----------
+
 # MAGIC %scala
 # MAGIC spark.conf.set("com.databricks.training.module_name", "Sensor_IoT")
 # MAGIC val dbNamePrefix = {
-# MAGIC   spark.conf.set("com.databricks.training.spark.dbName", "db_sensor_iot_db")
-# MAGIC   spark.conf.set("com.databricks.training.spark.userName", "db")
+# MAGIC   val tags = com.databricks.logging.AttributionContext.current.tags
+# MAGIC   val name = tags.getOrElse(com.databricks.logging.BaseTagDefinitions.TAG_USER, java.util.UUID.randomUUID.toString.replace("-", ""))
+# MAGIC   val username = if (name != "unknown") name else dbutils.widgets.get("databricksUsername")
+# MAGIC   
+# MAGIC   val username_final = username.split('@')(0)
+# MAGIC   val module_name = spark.conf.get("com.databricks.training.module_name").toLowerCase()
+# MAGIC 
+# MAGIC   val databaseName = (username_final+"_"+module_name).replaceAll("[^a-zA-Z0-9]", "_") + "_db"
+# MAGIC   spark.conf.set("com.databricks.training.spark.dbName", databaseName)
+# MAGIC   spark.conf.set("com.databricks.training.spark.userName", username_final)
 # MAGIC }
 
 # COMMAND ----------
@@ -150,10 +162,6 @@ dbutils.fs.cp(f"file:/databricks/driver/{local_file_his}", f"{base_table_path}hi
 
 # COMMAND ----------
 
-# MAGIC %fs ls dbfs:/FileStore/db/bootcamp_data
-
-# COMMAND ----------
-
 ### Backfill Sensor data
 
 local_file_bf = local_data_path + "backfill_sensor_data_final.csv"
@@ -181,6 +189,10 @@ local_file_pd = local_data_path + "plant_data.csv"
 download_file_from_google_drive("1eMB5wy1wa9hh1qgk_pEwvOICn367UdfJ", local_file_pd)
 
 dbutils.fs.cp(f"file:/databricks/driver/{local_file_pd}", f"{base_table_path}plant_data.csv")
+
+# COMMAND ----------
+
+dbutils.fs.ls(f"dbfs:/FileStore/{username}/bootcamp_data/")
 
 # COMMAND ----------
 
@@ -318,7 +330,7 @@ spark.sql(f"CREATE TABLE if not exists sensor_readings_historical_silver USING D
 
 # COMMAND ----------
 
-dataPath = f"{dbfs_data_path}backfill_sensor_data.csv"
+dataPath = f"{dbfs_data_path}backfill_sensor_data_final.csv"
 
 df = spark.read\
   .option("header", "true")\
@@ -437,7 +449,7 @@ spark.sql(f"CREATE TABLE IF NOT EXISTS sensor_readings_historical_silver_clone D
 
 # COMMAND ----------
 
-# Generate new loans with dollar amounts 
+# Generate 2 new columns (reading_4 and reading_5)
 tmp_df = sql("SELECT *, CAST(rand(10000)/8 AS double) AS reading_4, CAST(rand(1000)/9 AS double) AS reading_5 FROM sensor_readings_historical_silver LIMIT 10")
 # display(tmp_df)
 
@@ -465,7 +477,7 @@ tmp_df.write.option("mergeSchema","true").format("delta").mode("append").save(si
 
 # COMMAND ----------
 
-dataPath = f"dbfs:/FileStore/{base_table_path}sensor_readings_current_labeled.csv"
+dataPath = f"{base_table_path}sensor_readings_current_labeled.csv"
 
 df = spark.read\
   .option("header", "true")\
