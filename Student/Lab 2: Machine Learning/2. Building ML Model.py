@@ -46,7 +46,7 @@ displayHTML(f"<h2>Make sure you can see your experiment on <a href='#mlflow/expe
 # MAGIC 
 # MAGIC `mlflow.pyfunc.log_model` requires two things:
 # MAGIC   - [1] Instance of `mlflow.pyfunc.PythonModel` object that implements `load_context()` and `predict()` methods. Think of it as a model wrapper that can assemble your model subcomponents into a model. This is very useful when your model subcomponents have different serialisation methods. For example, some artefacts may be saved as json, pickle, while other require H5 files (such as Keras)
-# MAGIC   - [2] An `artifacts` dictionary that contain filepaths to various subcomponents of your model. This artifact dictionory will be available to your `load_context()` and `predict()` methods.
+# MAGIC   - [2] An `artifacts` dictionary that contains filepaths to various subcomponents of your model. This artifact dictionary will be available to your `load_context()` and `predict()` methods.
 
 # COMMAND ----------
 

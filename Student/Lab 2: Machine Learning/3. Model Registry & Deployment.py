@@ -42,7 +42,7 @@ displayHTML(f"<h2>Check the experiment at <a href='#mlflow/experiments/{experime
 
 # COMMAND ----------
 
-model_path = 
+model_path = 'dbfs:/databricks/mlflow-tracking/3218086841509369/0f6e1aabf14f490987434a61aeed707a/artifacts/model'
 model = mlflow.pyfunc.load_model(model_path)
 
 # COMMAND ----------
@@ -178,7 +178,7 @@ df_predictions = pd.DataFrame(
   columns=['predictions_worst', 'predictions_best', 'true_labels']
 )
 
-display(df_predictions.query('predictions_worst != predictions_worst'))
+display(df_predictions.query('predictions_worst != predictions_best'))
 
 # COMMAND ----------
 
