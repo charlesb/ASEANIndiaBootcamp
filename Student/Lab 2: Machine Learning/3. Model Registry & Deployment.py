@@ -42,6 +42,7 @@ displayHTML(f"<h2>Check the experiment at <a href='#mlflow/experiments/{experime
 
 # COMMAND ----------
 
+# Modify model_path with your own experiment!
 model_path = 'dbfs:/databricks/mlflow-tracking/3218086841509369/0f6e1aabf14f490987434a61aeed707a/artifacts/model'
 model = mlflow.pyfunc.load_model(model_path)
 
