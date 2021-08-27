@@ -43,6 +43,12 @@ displayHTML("""Using the database <b style="color:green">{}</b>.""".format(datab
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC 
+# MAGIC `GRANT USAGE, SELECT ON DATABASE db_sensor_iot_db TO users` will need to be executed on the SQL endpoint for students to have access
+
+# COMMAND ----------
+
 # Get the email address entered by the user on the calling notebook
 db_name = spark.conf.get("com.databricks.training.spark.dbName")
  
